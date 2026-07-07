@@ -4,18 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global 3D City</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; overflow: hidden; font-family: sans-serif; }
-        #ui { position: absolute; top: 10px; left: 10px; color: white; background: rgba(0,0,0,0.5); padding: 10px; pointer-events: none; }
+        body { margin: 0; overflow: hidden; font-family: 'Outfit', sans-serif; background-color: #05050c; }
+        #ui { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            color: #e0e0ff; 
+            background: rgba(10, 11, 22, 0.6); 
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 0, 128, 0.3); 
+            border-radius: 12px; 
+            padding: 15px 25px; 
+            pointer-events: none; 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 0, 128, 0.15); 
+            text-shadow: 0 0 5px rgba(224, 224, 255, 0.5);
+            letter-spacing: 0.5px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        #ui span {
+            color: #00ffcc;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
+        }
     </style>
 </head>
 <body>
     <div id="ui">
-        WASD to Move | SPACE to Jump | F to Fly/Walk<br>
+        <b>WASD</b> to Move | <b>SPACE</b> to Jump | <b>F</b> to Fly/Walk<br>
         Players Online: <span id="playerCount">1</span>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="main.js?v=2"></script>
+    <script src="main.js?v=3"></script>
 </body>
 </html>
