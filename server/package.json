@@ -1,0 +1,11 @@
+{
+  "name": "global-city-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "socket.io": "^4.7.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
