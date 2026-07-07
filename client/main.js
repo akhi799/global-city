@@ -42,6 +42,12 @@ const myMesh = new THREE.Mesh(
     new THREE.CapsuleGeometry(0.5, 1, 4, 8),
     new THREE.MeshStandardMaterial({ color: 0x00ff00 })
 );
+const myVisor = new THREE.Mesh(
+    new THREE.BoxGeometry(0.6, 0.2, 0.3),
+    new THREE.MeshStandardMaterial({ color: 0x000000 })
+);
+myVisor.position.set(0, 0.4, -0.4);
+myMesh.add(myVisor);
 scene.add(myMesh);
 
 const keys = {};
@@ -77,6 +83,12 @@ function addOtherPlayer(id, pos) {
         new THREE.CapsuleGeometry(0.5, 1, 4, 8),
         new THREE.MeshStandardMaterial({ color: 0xff0000 })
     );
+    const visor = new THREE.Mesh(
+        new THREE.BoxGeometry(0.6, 0.2, 0.3),
+        new THREE.MeshStandardMaterial({ color: 0x000000 })
+    );
+    visor.position.set(0, 0.4, -0.4);
+    mesh.add(visor);
     mesh.position.set(pos.x, pos.y, pos.z);
     scene.add(mesh);
     otherPlayers[id] = mesh;
@@ -86,11 +98,22 @@ function addOtherPlayer(id, pos) {
 function animate() {
     requestAnimationFrame(animate);
 
-    // Movement logic
-    if (keys['KeyW']) { playerPos.z -= speed; playerPos.rotation = 0; }
-    if (keys['KeyS']) { playerPos.z += speed; playerPos.rotation = Math.PI; }
-    if (keys['KeyA']) { playerPos.x -= speed; playerPos.rotation = -Math.PI/2; }
-    if (keys['KeyD']) { playerPos.x += speed; playerPos.rotation = Math.PI/2; }
+    // Rotation and Movement logic
+    const rotationSpeed = 0.05;
+    if (keys['KeyA']) {
+        playerPos.rotation += rotationSpeed;
+    }
+    if (keys['KeyD']) {
+        playerPos.rotation -= rotationSpeed;
+    }
+    if (keys['KeyW']) {
+        playerPos.x -= Math.sin(playerPos.rotation) * speed;
+        playerPos.z -= Math.cos(playerPos.rotation) * speed;
+    }
+    if (keys['KeyS']) {
+        playerPos.x += Math.sin(playerPos.rotation) * speed;
+        playerPos.z += Math.cos(playerPos.rotation) * speed;
+    }
 
     if (isFlying) {
         if (keys['Space']) playerPos.y += speed;
@@ -106,8 +129,12 @@ function animate() {
     myMesh.position.set(playerPos.x, playerPos.y, playerPos.z);
     myMesh.rotation.y = playerPos.rotation;
 
-    // Camera follows player
-    camera.position.set(playerPos.x, playerPos.y + 5, playerPos.z + 10);
+    // Camera follows behind player, rotating with them
+    const cameraDistance = 10;
+    const cameraHeight = 5;
+    camera.position.x = playerPos.x + Math.sin(playerPos.rotation) * cameraDistance;
+    camera.position.z = playerPos.z + Math.cos(playerPos.rotation) * cameraDistance;
+    camera.position.y = playerPos.y + cameraHeight;
     camera.lookAt(playerPos.x, playerPos.y, playerPos.z);
 
     // Sync to server
