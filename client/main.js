@@ -19,6 +19,11 @@ const ground = new THREE.Mesh(
 ground.rotation.x = -Math.PI / 2;
 scene.add(ground);
 
+// Grid Helper for visual movement reference
+const gridHelper = new THREE.GridHelper(1000, 100, 0x00ff00, 0x444444);
+gridHelper.position.y = 0.01; // slightly above ground to prevent z-fighting
+scene.add(gridHelper);
+
 // Dummy Building (Placeholder for Monuments)
 function createBuilding(x, z, height, color) {
     const geo = new THREE.BoxGeometry(5, height, 5);
@@ -129,12 +134,17 @@ function animate() {
     myMesh.position.set(playerPos.x, playerPos.y, playerPos.z);
     myMesh.rotation.y = playerPos.rotation;
 
-    // Camera follows behind player, rotating with them
+    // Camera follows behind player with smooth interpolation (lerping)
     const cameraDistance = 10;
     const cameraHeight = 5;
-    camera.position.x = playerPos.x + Math.sin(playerPos.rotation) * cameraDistance;
-    camera.position.z = playerPos.z + Math.cos(playerPos.rotation) * cameraDistance;
-    camera.position.y = playerPos.y + cameraHeight;
+    const targetCameraX = playerPos.x + Math.sin(playerPos.rotation) * cameraDistance;
+    const targetCameraZ = playerPos.z + Math.cos(playerPos.rotation) * cameraDistance;
+    const targetCameraY = playerPos.y + cameraHeight;
+
+    // Smooth camera lag/lerp
+    camera.position.x += (targetCameraX - camera.position.x) * 0.1;
+    camera.position.z += (targetCameraZ - camera.position.z) * 0.1;
+    camera.position.y += (targetCameraY - camera.position.y) * 0.1;
     camera.lookAt(playerPos.x, playerPos.y, playerPos.z);
 
     // Sync to server
