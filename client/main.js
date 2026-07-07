@@ -1,4 +1,4 @@
-const socket = io('YOUR_KOYEB_URL_HERE');
+const socket = io('https://global-city.onrender.com');
 
 // --- 3D SCENE SETUP ---
 const scene = new THREE.Scene();
