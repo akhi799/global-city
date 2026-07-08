@@ -3,44 +3,592 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global 3D City</title>
+    <title>NEO-CITY GRID 2.0 | Collaborative 3D Cyber-City</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Outfit', sans-serif; background-color: #05050c; }
-        #ui { 
-            position: absolute; 
-            top: 20px; 
-            left: 20px; 
-            color: #e0e0ff; 
-            background: rgba(10, 11, 22, 0.6); 
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 0, 128, 0.3); 
-            border-radius: 12px; 
-            padding: 15px 25px; 
-            pointer-events: none; 
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 0, 128, 0.15); 
-            text-shadow: 0 0 5px rgba(224, 224, 255, 0.5);
-            letter-spacing: 0.5px;
-            font-size: 14px;
-            line-height: 1.6;
+        :root {
+            --bg-color: #030308;
+            --panel-bg: rgba(10, 11, 26, 0.65);
+            --border-color: rgba(0, 255, 204, 0.2);
+            --glow-color: rgba(0, 255, 204, 0.4);
+            --pink-glow: rgba(255, 0, 127, 0.4);
+            --text-color: #e2e8f0;
+            --text-muted: #94a3b8;
+            --neon-cyan: #00ffcc;
+            --neon-pink: #ff007f;
+            --neon-yellow: #ffaa00;
         }
-        #ui span {
-            color: #00ffcc;
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+        }
+
+        canvas { display: block; }
+
+        /* Glassmorphic Panel Base */
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 255, 204, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(0, 255, 204, 0.35);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7), inset 0 0 25px rgba(0, 255, 204, 0.1);
+        }
+
+        /* Top Bar */
+        #top-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            height: 60px;
+            padding: 0 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+            border-radius: 6px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+            position: relative;
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            from { transform: scale(1); box-shadow: 0 0 10px rgba(0, 255, 204, 0.4); }
+            to { transform: scale(1.08); box-shadow: 0 0 20px rgba(0, 255, 204, 0.7); }
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            background: linear-gradient(to right, #ffffff, var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+
+        .telemetry {
+            display: flex;
+            gap: 30px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .telemetry-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .telemetry-value {
+            color: var(--neon-cyan);
             font-weight: 600;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
+            text-shadow: 0 0 8px rgba(0, 255, 204, 0.4);
+        }
+
+        .telemetry-value.pink {
+            color: var(--neon-pink);
+            text-shadow: 0 0 8px rgba(255, 0, 127, 0.4);
+        }
+
+        /* Sidebar Container */
+        #right-sidebar {
+            position: absolute;
+            top: 100px;
+            right: 20px;
+            bottom: 110px;
+            width: 320px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        .sidebar-section {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Controls Panel */
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: var(--text-color);
+            padding: 10px 15px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(0, 255, 204, 0.05);
+            border-color: var(--border-color);
+        }
+
+        .toggle-btn.active {
+            background: rgba(0, 255, 204, 0.12);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+            color: #ffffff;
+        }
+
+        .toggle-btn.active .toggle-status {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px rgba(0, 255, 204, 0.5);
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .custom-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            box-shadow: 0 0 8px var(--neon-cyan);
+            transition: transform 0.1s;
+        }
+
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
+        }
+
+        /* Player List */
+        .player-list {
+            max-height: 120px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .player-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .player-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .player-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .player-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--neon-pink);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--neon-pink);
+        }
+
+        .player-dot.self {
+            background: var(--neon-cyan);
+            box-shadow: 0 0 6px var(--neon-cyan);
+        }
+
+        .player-coords {
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        /* Mini-map */
+        .minimap-wrapper {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #minimap-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Bottom Toolbar */
+        #toolbar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 70px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        .tool-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tool-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+            transition: transform 0.2s;
+        }
+
+        .tool-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .tool-btn.active {
+            background: rgba(0, 255, 204, 0.1);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.25), inset 0 0 5px rgba(0, 255, 204, 0.2);
+        }
+
+        .tool-btn.active.demolish {
+            background: rgba(255, 0, 127, 0.1);
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.25), inset 0 0 5px rgba(255, 0, 127, 0.2);
+        }
+
+        /* Tooltip */
+        .tool-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 60px;
+            background: rgba(5, 5, 12, 0.9);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            opacity: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            transition: opacity 0.15s, transform 0.15s;
+            transform: translateY(5px);
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .tool-btn:hover::after {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Instructions overlay */
+        #instructions-panel {
+            position: absolute;
+            left: 20px;
+            bottom: 20px;
+            padding: 15px 20px;
+            z-index: 10;
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        #instructions-panel b {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        #instructions-panel .key-badge {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            padding: 1px 5px;
+            font-family: monospace;
+            color: #ffffff;
+            margin-right: 2px;
+        }
+
+        /* Build Rotation Helper UI Overlay */
+        #rotation-helper {
+            position: absolute;
+            left: 50%;
+            bottom: 100px;
+            transform: translateX(-50%);
+            background: rgba(10, 11, 26, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-size: 12px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            pointer-events: none;
+            animation: bounce-anim 1.5s infinite ease-in-out;
+        }
+
+        @keyframes bounce-anim {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, -4px); }
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--neon-cyan);
+            border-radius: 50%;
+            animation: pulse-dot-anim 1s infinite alternate;
+        }
+
+        @keyframes pulse-dot-anim {
+            from { box-shadow: 0 0 2px var(--neon-cyan); }
+            to { box-shadow: 0 0 10px var(--neon-cyan); }
         }
     </style>
 </head>
 <body>
-    <div id="ui">
-        <b>WASD</b> to Move | <b>SPACE</b> to Jump | <b>F</b> to Fly/Walk<br>
-        Players Online: <span id="playerCount">1</span>
+    <!-- Top Telemetry Bar -->
+    <div id="top-bar" class="glass-panel">
+        <div class="brand">
+            <div class="brand-logo"></div>
+            <div class="brand-title">NEO-CITY GRID 2.0</div>
+        </div>
+        <div class="telemetry">
+            <div class="telemetry-item">
+                <span>Network Status:</span>
+                <span class="telemetry-value" id="ping">Connected</span>
+            </div>
+            <div class="telemetry-item">
+                <span>Active Builders:</span>
+                <span class="telemetry-value pink" id="playerCount">1</span>
+            </div>
+            <div class="telemetry-item">
+                <span>City Objects:</span>
+                <span class="telemetry-value" id="cityObjectsCount">0</span>
+            </div>
+        </div>
     </div>
+
+    <!-- Right Control Panel -->
+    <div id="right-sidebar" class="glass-panel">
+        <!-- Controls Section -->
+        <div class="sidebar-section">
+            <div class="section-title">Control Center</div>
+            <div class="control-group">
+                <button class="toggle-btn" id="flight-toggle">
+                    <span>Flight Mode <span class="key-badge">F</span></span>
+                    <span class="toggle-status" id="flight-status">WALKING</span>
+                </button>
+                <button class="toggle-btn" id="music-toggle">
+                    <span>Synthwave Beats 🎵</span>
+                    <span class="toggle-status" id="music-status">MUTED</span>
+                </button>
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Day/Night Speed</span>
+                        <span id="cycle-speed-val">1.0x</span>
+                    </div>
+                    <input type="range" id="cycle-speed" class="custom-slider" min="0" max="5" step="0.2" value="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Players List -->
+        <div class="sidebar-section">
+            <div class="section-title">Builders Online</div>
+            <div class="player-list" id="builders-list">
+                <!-- Dynamically Populated -->
+            </div>
+        </div>
+
+        <!-- Mini-Map -->
+        <div class="sidebar-section" style="flex-grow: 1; display: flex; flex-direction: column;">
+            <div class="section-title">Holo Map</div>
+            <div class="minimap-wrapper" style="flex-grow: 1;">
+                <canvas id="minimap-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rotation Helper Overlay -->
+    <div id="rotation-helper">
+        <div class="pulse-dot"></div>
+        <span>Press <span class="key-badge">R</span> to rotate hologram. Left-click to place.</span>
+    </div>
+
+    <!-- Left Controls Info Panel -->
+    <div id="instructions-panel" class="glass-panel">
+        <b>WASD</b> to Move | 
+        <b>A / D</b> Rotate Player | 
+        <span class="key-badge">Space</span> Jump / Fly Up | 
+        <span class="key-badge">Shift</span> Fly Down | 
+        <span class="key-badge">B</span> Build Mode
+    </div>
+
+    <!-- Bottom Toolbar -->
+    <div id="toolbar" class="glass-panel">
+        <!-- Move / View Mode -->
+        <button class="tool-btn active" id="tool-move" data-tooltip="Navigate / Move Mode (Esc)">
+            <svg viewBox="0 0 24 24">
+                <path d="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2M12,5.27L16.58,16.37L12,14.37L7.42,16.37L12,5.27Z"/>
+            </svg>
+        </button>
+
+        <!-- Skyscraper -->
+        <button class="tool-btn" id="tool-skyscraper" data-tooltip="Place Neon Skyscraper">
+            <svg viewBox="0 0 24 24">
+                <path d="M19 2H5C3.9 2 3 2.9 3 4V22H21V4C21 2.9 20.1 2 19 2M11 20H5V16H11V20M11 14H5V10H11V14M11 8H5V4H11V8M19 20H13V16H19V20M19 14H13V10H19V14M19 8H13V4H19V8Z"/>
+            </svg>
+        </button>
+
+        <!-- Cyber Tower -->
+        <button class="tool-btn" id="tool-cybertower" data-tooltip="Place Cyber Beacon Tower">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.47 2 2 6.47 2 12S6.47 22 12 22 22 17.53 22 12 17.53 2 12 2M12 4C13.9 4 15.55 4.96 16.5 6.4L13.5 11.6C13.13 11.23 12.6 11 12 11S10.87 11.23 10.5 11.6L7.5 6.4C8.45 4.96 10.1 4 12 4M6.4 16.5L9.4 11.3C9.77 11.67 10.3 11.9 10.9 11.9S12.03 11.67 12.4 11.3L15.4 16.5C14.45 17.94 12.8 18.9 10.9 18.9S7.35 17.94 6.4 16.5Z"/>
+            </svg>
+        </button>
+
+        <!-- Hovercar Pad -->
+        <button class="tool-btn" id="tool-hovercarpad" data-tooltip="Place Hovercar Spawner">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2M12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20A8 8 0 0 1 4 12A8 8 0 0 1 12 4M12 6L7 11H10V15H14V11H17L12 6Z"/>
+            </svg>
+        </button>
+
+        <!-- Neon Park -->
+        <button class="tool-btn" id="tool-park" data-tooltip="Place Holo Park">
+            <svg viewBox="0 0 24 24">
+                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12C20,14.4 18.97,16.57 17.3,18.04L15.89,16.63C17.2,15.4 18,13.8 18,12A6,6 0 0,0 12,6A6,6 0 0,0 6,12C6,13.8 6.8,15.4 8.11,16.63L6.7,18.04C5.03,16.57 4,14.4 4,12A8,8 0 0,1 12,4M12,8A4,4 0 0,1 16,12C16,13.1 15.5,14.1 14.79,14.79L13.38,13.38C13.77,13.06 14,12.56 14,12A2,2 0 0,0 12,10A2,2 0 0,0 10,12C10,12.56 10.23,13.06 10.62,13.38L9.21,14.79C8.5,14.1 8,13.1 8,12A4,4 0 0,1 12,8Z"/>
+            </svg>
+        </button>
+
+        <!-- Custom Road -->
+        <button class="tool-btn" id="tool-road" data-tooltip="Place Neon Road Segment">
+            <svg viewBox="0 0 24 24">
+                <path d="M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M11,5H13V9H11V5M11,11H13V13H11V11M11,15H13V19H11V15Z"/>
+            </svg>
+        </button>
+
+        <!-- Demolish Tool -->
+        <button class="tool-btn demolish" id="tool-demolish" data-tooltip="Demolish Building (Del)">
+            <svg viewBox="0 0 24 24">
+                <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script src="main.js?v=3"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="main.js?v=4"></script>
 </body>
 </html>
